@@ -1,0 +1,3 @@
+[submodule "dmc"]
+	path = dmc
+	url = https://github.com/lukestrickland/DMC.git
