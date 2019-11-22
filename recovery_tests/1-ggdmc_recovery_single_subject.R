@@ -84,22 +84,34 @@ p.prior <- BuildPrior(
   upper = c(rep(NA,9),  1, rep(NA, 19)))
 
 print(p.prior)
-
+# 
 # dat0 <- simulate(model0, nsim = 1e3, ps = sim.p.vector)
 # 
-# save(dat0, file="tutorial_data/data_example_1.RData")
+# save(dat0, file="recovery_data/data_example_1.RData")
 
-load("tutorial_data/data_example_1.RData")
+load("recovery_data/data_example_1.RData")
 
 dmi0 <- BuildDMI(dat0, model0)
 
 
+#note ncore argument is useless for single subject fits at the moment
+#just uses 1 core no matter what you input. 
+# But will be great when need to dispatch one subject
+#per core
+fit0 <- StartNewsamples(dmi0, prior=p.prior,nmc=180, ncore=1, thin=5)
+save(fit0, model0, dat0, dmi0, sim.p.vector, p.prior, file = "recovery_data/singleS_1.RData")
+fit  <- run(fit0, thin=5, ncore=1, block=FALSE)
+save(fit, fit0, model0, dat0, dmi0, sim.p.vector, p.prior, file = "recovery_data/ggsim_gg_singleS.RData")
 
-fit0 <- StartNewsamples(dmi0, prior=p.prior,nmc=180, ncore=8, thin=5)
-save(fit0, model0, dat0, dmi0, sim.p.vector, p.prior, file = "singleS_1.RData")
-fit  <- run(fit0, thin=5, ncore=4)
-save(fit, fit0, model0, dat0, dmi0, sim.p.vector, p.prior, file = "singleS_2.RData")
+##Cross fit with dmc sim
 
-posts <- summary(fit)
+load("recovery_data/dmc_data_example_1.RData")
 
-cbind(posts$statistics[,1:2], sim.p.vector[rownames(posts$statistics[,1:2])])
+dmi0 <- BuildDMI(dmc_dat0, model0)
+fit0 <- StartNewsamples(dmi0, prior=p.prior,nmc=180, ncore=1, thin=5)
+save(fit0, model0, dmc_dat0, dmi0, sim.p.vector, p.prior, file = "recovery_data/singleS_1.RData")
+fit  <- run(fit0, thin=5, ncore=1, block=FALSE)
+save(fit, fit0, model0, dmc_dat0, dmi0, sim.p.vector, p.prior, file = "recovery_data/singleS_2.RData")
+
+
+save(dmc_fit, file="recovery_data/dmcsim_gg_singleS.RData")
